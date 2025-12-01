@@ -17,6 +17,7 @@ import com.ipguard.core.rules.IpRuleParser;
  *  - IpRuleParser로 파싱하여 List<IpRuleInterface>를 만든다.
  *  - v1: 리로드 없음 (엔진 생성 시 한 번만 호출)
  */
+// ip-guard-source-file 모듈 안
 public final class FileRuleSource implements RuleSource {
 
 	private final Path ruleFilePath;
@@ -27,18 +28,8 @@ public final class FileRuleSource implements RuleSource {
 
 	@Override
 	public List<IpRuleInterface> loadRules() {
-		try {
-			String raw = Files.readString(ruleFilePath);
-			List<IpRuleInterface> rules = IpRuleParser.parse(raw);
-
-			return List.copyOf(rules);
-
-		} catch (IOException e) {
-			throw new IpGuardException(
-				IpGuardErrorCode.ERROR_RULE_FILE_IO,
-				"파일을 읽을 수 없습니다.: " + ruleFilePath,
-				e
-			);
-		}
+		String raw = Files.readString(ruleFilePath);
+		return IpRuleParser.parse(raw);
 	}
 }
+

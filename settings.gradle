@@ -1,3 +1,3 @@
 rootProject.name = "ip-guard"
-include ('core')
-include ('config-file')
+include 'core'
+include 'config-file'
