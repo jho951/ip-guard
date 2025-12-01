@@ -37,27 +37,43 @@ public final class EnvConfig {
 	}
 
 	/**
-	 * IP 규칙 문자열에서 범위 구분자 "~"를 "-"로 정규화한다.
-	 *
-	 * <pre>
-	 * "10.0.0.1 ~ 10.0.0.10" → "10.0.0.1-10.0.0.10"
-	 * </pre>
-	 *
-	 * @param ipRules IP 규칙 원본 문자열
-	 * @return null/blank면 그대로, 아니면 "~"→"-" 치환 후 trim
+	 * "~" 등을 정규화해서, 파서가 먹기 좋은 형태로 만들어 준다.
+	 * 예) "192.168.0.1 ~ 192.168.0.10" -> "192.168.0.1-192.168.0.10"
 	 */
-	public static String normalizeRules(String ipRules) {
-		if (ipRules == null || ipRules.isBlank()) return ipRules;
-		return ipRules.replaceAll("\\s*~\\s*", "-").trim();
+	public static String normalizeRules(String rawRules) {
+		if (rawRules == null) {
+			return null;
+		}
+		String trimmed = rawRules.trim();
+		if (trimmed.isEmpty()) {
+			return trimmed;
+		}
+		return trimmed.replaceAll("\\s*~\\s*", "-");
 	}
 
 	/**
-	 * DEFAULT_IP 규칙을 정규화한 값.
-	 *
-	 * @return "~"가 "-"로 치환된 DEFAULT_IP 규칙 문자열
+	 * DEFAULT_IP 환경변수를 읽어 정규화한 문자열 반환.
+	 * 없으면 null.
 	 */
 	public static String defaultIpRules() {
-		return normalizeRules("DEFAULT_IP");
+		String raw = rawDefaultIpRules();
+		return normalizeRules(raw);
+	}
+
+	/**
+	 * 환경변수에서 원시 규칙 문자열을 읽는다.
+	 * 없으면 null.
+	 */
+	public static String rawDefaultIpRules() {
+		return System.getenv("DEFAULT_IP");
+	}
+
+	/**
+	 * 규칙 파일 경로를 나타내는 환경변수.
+	 * 예) ALLOW_IP_PATH=/etc/ip-guard/allow-ip.txt
+	 */
+	public static String ruleFilePathFromEnv() {
+		return System.getenv("ALLOW_IP_PATH");
 	}
 }
 
