@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ipguard.core.engine.IpGuardEngineTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-12-01T06:47:17.415Z" hostname="jhonui-MacBookPro-2.local" time="0.01">
+  <properties/>
+  <testcase name="allow_whenAnyRuleMatches()" classname="com.ipguard.core.engine.IpGuardEngineTest" time="0.006"/>
+  <testcase name="allow_whenRuleMatchesNormalizedIp()" classname="com.ipguard.core.engine.IpGuardEngineTest" time="0.0"/>
+  <testcase name="deny_whenClientIpIsNullOrBlank_afterNormalize()" classname="com.ipguard.core.engine.IpGuardEngineTest" time="0.0"/>
+  <testcase name="deny_whenNoRuleMatches()" classname="com.ipguard.core.engine.IpGuardEngineTest" time="0.001"/>
+  <testcase name="engineShouldUseDefensiveCopyOfRules()" classname="com.ipguard.core.engine.IpGuardEngineTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
