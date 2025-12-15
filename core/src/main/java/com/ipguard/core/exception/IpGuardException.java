@@ -2,29 +2,29 @@ package com.ipguard.core.exception;
 
 public class IpGuardException extends RuntimeException {
 
-	private final IpGuardErrorCode errorCode;
+	private final ErrorCode errorCode;
 
-	public IpGuardException(IpGuardErrorCode errorCode) {
+	public IpGuardException(ErrorCode errorCode) {
 		super(errorCode.defaultMessage());
 		this.errorCode = errorCode;
 	}
 
-	public IpGuardException(IpGuardErrorCode errorCode, String message) {
+	public IpGuardException(ErrorCode errorCode, String message) {
 		super(message);
 		this.errorCode = errorCode;
 	}
 
-	public IpGuardException(IpGuardErrorCode errorCode, String message, Throwable cause) {
+	public IpGuardException(ErrorCode errorCode, String message, Throwable cause) {
 		super(message, cause);
 		this.errorCode = errorCode;
 	}
 
-	public IpGuardException(IpGuardErrorCode errorCode, Throwable cause) {
+	public IpGuardException(ErrorCode errorCode, Throwable cause) {
 		super(errorCode.defaultMessage(), cause);
 		this.errorCode = errorCode;
 	}
 
-	public IpGuardErrorCode getErrorCode() {
+	public ErrorCode getErrorCode() {
 		return errorCode;
 	}
 

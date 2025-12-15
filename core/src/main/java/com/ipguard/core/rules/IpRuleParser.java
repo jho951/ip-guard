@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
+import com.ipguard.core.exception.ErrorCode;
+import com.ipguard.core.exception.IpGuardException;
 import com.ipguard.core.rules.cidr.CidrIpRuleInterface;
 import com.ipguard.core.rules.range.RangeIpRuleInterface;
 import com.ipguard.core.rules.single.SingleIpRuleInterface;
 import com.ipguard.core.rules.wildcard.WildcardIpRuleInterface;
-
-import com.ipguard.core.exception.IpGuardErrorCode;
-import com.ipguard.core.exception.IpGuardException;
 
 /**
  * 규칙 문자열을 IpRule 리스트로 파싱.
@@ -59,7 +58,7 @@ public final class IpRuleParser {
 		if (token.contains("-")) {
 			String[] se = token.split("-");
 			if (se.length != 2) {
-				throw new IpGuardException(IpGuardErrorCode.INVALID_RULE_SYNTAX, "잘못된 범위입니다: " + token);
+				throw new IpGuardException(ErrorCode.INVALID_RULE_SYNTAX, "잘못된 범위입니다: " + token);
 			}
 			return new RangeIpRuleInterface(se[0], se[1]);
 		}

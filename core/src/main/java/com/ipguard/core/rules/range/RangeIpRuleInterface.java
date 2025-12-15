@@ -1,6 +1,6 @@
 package com.ipguard.core.rules.range;
 
-import com.ipguard.core.exception.IpGuardErrorCode;
+import com.ipguard.core.exception.ErrorCode;
 import com.ipguard.core.exception.IpGuardException;
 
 import com.ipguard.core.rules.IpRuleInterface;
@@ -17,10 +17,10 @@ public final class RangeIpRuleInterface implements IpRuleInterface {
 
 	public RangeIpRuleInterface(String start, String end) {
 		if (start == null) {
-			throw new IpGuardException(IpGuardErrorCode.UNSUPPORTED_IP_TYPE,"시작 범위가 비어있습니다.");
+			throw new IpGuardException(ErrorCode.UNSUPPORTED_IP_TYPE,"시작 범위가 비어있습니다.");
 		}
 		if (end == null) {
-			throw new IpGuardException(IpGuardErrorCode.UNSUPPORTED_IP_TYPE,"끝 범위가 비어있습니다.");
+			throw new IpGuardException(ErrorCode.UNSUPPORTED_IP_TYPE,"끝 범위가 비어있습니다.");
 		}
 		String s = start.trim();
 		String e = end.trim();

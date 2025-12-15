@@ -1,13 +1,13 @@
-package com.ipguard.file.source;
+package com.ipguard.config.source;
 
 import java.util.List;
 
 import com.ipguard.core.engine.RuleSource;
-import com.ipguard.core.exception.IpGuardErrorCode;
+import com.ipguard.core.exception.ErrorCode;
 import com.ipguard.core.exception.IpGuardException;
 import com.ipguard.core.rules.IpRuleInterface;
 import com.ipguard.core.rules.IpRuleParser;
-import com.ipguard.file.config.EnvConfig;
+import com.ipguard.config.EnvConfig;
 
 /**
  * ENV 기반 RuleSource 구현체.
@@ -38,12 +38,11 @@ public final class EnvRuleSource implements RuleSource {
 		String normalized = EnvConfig.normalizedEnvRules(envName);
 		if (normalized == null || normalized.isBlank()) {
 			throw new IpGuardException(
-				IpGuardErrorCode.INVALID_ENV_VALUE,
+				ErrorCode.INVALID_ENV_VALUE,
 				"환경변수 [" + envName + "]가 비어 있거나 설정되지 않았습니다."
 			);
 		}
 		List<IpRuleInterface> rules = IpRuleParser.parse(normalized);
-		// 방어적 복사: 외부에서 리스트 수정 못 하게
 		return List.copyOf(rules);
 	}
 }

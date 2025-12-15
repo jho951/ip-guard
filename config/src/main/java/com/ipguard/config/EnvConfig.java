@@ -1,4 +1,4 @@
-package com.ipguard.file.config;
+package com.ipguard.config;
 
 /**
  * ENV 기반 설정 유틸

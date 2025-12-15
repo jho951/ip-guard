@@ -2,7 +2,7 @@ package com.ipguard.core.engine;
 
 /**
  * IP 판정 결과.
- * ALLOW, DENY, UNKNOWN(규칙 매칭 없음) 세 가지 상태.
+ * ALLOW, DENY 세 가지 상태.
  */
 public enum Decision {
 	ALLOW,

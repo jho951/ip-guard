@@ -1,6 +1,6 @@
 package com.ipguard.core.util;
 
-import com.ipguard.core.exception.IpGuardErrorCode;
+import com.ipguard.core.exception.ErrorCode;
 import com.ipguard.core.exception.IpGuardException;
 
 import java.net.InetAddress;
@@ -22,7 +22,7 @@ public final class IpUtils {
 		if (ip == null || ip.isBlank()) return null;
 		String x = ip.trim();
 
-		if ("::1".equals(x)) throw new IpGuardException(IpGuardErrorCode.UNSUPPORTED_IP_TYPE, "IPv4만 지원합니다.: " + ip);
+		if ("::1".equals(x)) throw new IpGuardException(ErrorCode.UNSUPPORTED_IP_TYPE, "IPv4만 지원합니다.: " + ip);
 
 		int lastColon = x.lastIndexOf(':');
 		if (lastColon >= 0 && x.contains(".")) {
@@ -39,11 +39,11 @@ public final class IpUtils {
 		try {
 			byte[] b = InetAddress.getByName(ip).getAddress();
 			if (b.length != 4) {
-				throw new IpGuardException(IpGuardErrorCode.UNSUPPORTED_IP_TYPE, "IPv4 형식이 아닙니다.: " + ip);
+				throw new IpGuardException(ErrorCode.UNSUPPORTED_IP_TYPE, "IPv4 형식이 아닙니다.: " + ip);
 			}
 			return ((b[0] & 0xFF) << 24) | ((b[1] & 0xFF) << 16) | ((b[2] & 0xFF) <<  8) |  (b[3] & 0xFF);
 		} catch (UnknownHostException e) {
-			throw new IpGuardException(IpGuardErrorCode.INVALID_IP_ADDRESS, "잘못된 IP 주소입니다: " + ip, e);
+			throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "잘못된 IP 주소입니다: " + ip, e);
 		}
 	}
 

@@ -2,7 +2,7 @@ package com.ipguard.core.rules.wildcard;
 
 import com.ipguard.core.util.IpUtils;
 import com.ipguard.core.rules.IpRuleInterface;
-import com.ipguard.core.exception.IpGuardErrorCode;
+import com.ipguard.core.exception.ErrorCode;
 import com.ipguard.core.exception.IpGuardException;
 
 /**
@@ -16,13 +16,13 @@ public final class WildcardIpRuleInterface implements IpRuleInterface {
 
 	public WildcardIpRuleInterface(String wildcardRaw) {
 		if (wildcardRaw == null || wildcardRaw.isBlank()) {
-			throw new IpGuardException(IpGuardErrorCode.INVALID_RULE_SYNTAX, "Wildcard rule is blank");
+			throw new IpGuardException(ErrorCode.INVALID_RULE_SYNTAX, "Wildcard rule is blank");
 		}
 
 		this.raw = wildcardRaw.trim();
 		String[] parts = this.raw.split("\\.");
 		if (parts.length < 1 || parts.length > 4) {
-			throw new IpGuardException(IpGuardErrorCode.INVALID_RULE_SYNTAX, "Invalid wildcard rule: " + raw);
+			throw new IpGuardException(ErrorCode.INVALID_RULE_SYNTAX, "Invalid wildcard rule: " + raw);
 		}
 
 		String[] octets = new String[4];
@@ -47,10 +47,10 @@ public final class WildcardIpRuleInterface implements IpRuleInterface {
 				try {
 					v = Integer.parseInt(o);
 				} catch (NumberFormatException e) {
-					throw new IpGuardException(IpGuardErrorCode.INVALID_RULE_SYNTAX, "IP를 찾을 수 없습니다. (wildcard 패턴): " + raw, e);
+					throw new IpGuardException(ErrorCode.INVALID_RULE_SYNTAX, "IP를 찾을 수 없습니다. (wildcard 패턴): " + raw, e);
 				}
 				if (v < 0 || v > 255) {
-					throw new IpGuardException(IpGuardErrorCode.INVALID_RULE_SYNTAX, "IP를 찾을 수 없습니다. (wildcard 패턴)" + raw);
+					throw new IpGuardException(ErrorCode.INVALID_RULE_SYNTAX, "IP를 찾을 수 없습니다. (wildcard 패턴)" + raw);
 				}
 				base |= (v & 0xFF);
 				mask |= 0xFF;

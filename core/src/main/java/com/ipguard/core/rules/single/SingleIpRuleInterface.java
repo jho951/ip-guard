@@ -4,7 +4,7 @@ import com.ipguard.core.rules.IpRuleInterface;
 
 import com.ipguard.core.util.IpUtils;
 
-import com.ipguard.core.exception.IpGuardErrorCode;
+import com.ipguard.core.exception.ErrorCode;
 import com.ipguard.core.exception.IpGuardException;
 
 /**
@@ -17,7 +17,7 @@ public final class SingleIpRuleInterface implements IpRuleInterface {
 
 	public SingleIpRuleInterface(String rawIp) {
 		if (rawIp == null || rawIp.isBlank()) {
-			throw new IpGuardException(IpGuardErrorCode.UNSUPPORTED_RULE_TYPE, "단일 IP가 빈 값입니다.");
+			throw new IpGuardException(ErrorCode.UNSUPPORTED_RULE_TYPE, "단일 IP가 빈 값입니다.");
 		}
 
 		this.raw = rawIp.trim();

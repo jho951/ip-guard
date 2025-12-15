@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ipguard.core.exception.IpGuardErrorCode;
+import com.ipguard.core.exception.ErrorCode;
 import com.ipguard.core.exception.IpGuardException;
 
 class IpUtilsTest {
@@ -59,7 +59,7 @@ class IpUtilsTest {
 	@DisplayName("ipToInt: (Case A) 완전히 잘못된 입력 -> INVALID_IP_ADDRESS 예외 발생")
 	void ipToInt_invalidIpAddress() {
 		IpGuardException exception = assertThrows(IpGuardException.class, () -> IpUtils.ipToInt("abs"));
-		assertEquals(IpGuardErrorCode.INVALID_IP_ADDRESS, exception.getErrorCode());
+		assertEquals(ErrorCode.INVALID_IP_ADDRESS, exception.getErrorCode());
 	}
 
 
@@ -67,7 +67,7 @@ class IpUtilsTest {
 	@DisplayName("ipToInt: IPv6 입력이면 IPv4 only 예외")
 	void ipToInt_ipv6Throws() {
 		IpGuardException exception = assertThrows(IpGuardException.class,() -> IpUtils.ipToInt("::1"));
-		assertEquals(IpGuardErrorCode.UNSUPPORTED_IP_TYPE, exception.getErrorCode());
+		assertEquals(ErrorCode.UNSUPPORTED_IP_TYPE, exception.getErrorCode());
 	}
 
 

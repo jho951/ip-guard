@@ -1,4 +1,4 @@
-package com.ipguard.file.source;
+package com.ipguard.config.source;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import com.ipguard.core.engine.RuleSource;
-import com.ipguard.core.exception.IpGuardErrorCode;
+import com.ipguard.core.exception.ErrorCode;
 import com.ipguard.core.exception.IpGuardException;
 import com.ipguard.core.rules.IpRuleInterface;
 import com.ipguard.core.rules.IpRuleParser;
@@ -45,7 +45,7 @@ public final class FileRuleSource implements RuleSource {
 		} catch (IOException e) {
 			// v1: 파일 읽기 실패는 IpGuardException으로 래핑
 			throw new IpGuardException(
-				IpGuardErrorCode.ERROR_RULE_FILE_IO,
+				ErrorCode.ERROR_RULE_FILE_IO,
 				"규칙 파일을 읽을 수 없습니다: " + ruleFilePath,
 				e
 			);

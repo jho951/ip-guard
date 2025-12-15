@@ -4,7 +4,7 @@ package com.ipguard.core.exception;
  * Ip-guard 모듈 전용 에러 코드
  * IP로 코드를 적용
  */
-public enum IpGuardErrorCode {
+public enum ErrorCode {
 
 	// -----------------------------
 	// 설정/환경 관련
@@ -34,7 +34,7 @@ public enum IpGuardErrorCode {
 	private final String code;
 	private final String defaultMessage;
 
-	IpGuardErrorCode(String code, String defaultMessage) {
+	ErrorCode(String code, String defaultMessage) {
 		this.code = code;
 		this.defaultMessage = defaultMessage;
 	}
