@@ -1,13 +1,17 @@
+plugins {
+    id "java"
+}
+
 allprojects {
-    apply plugin: "java-library"
-    apply plugin: "maven-publish"
     group = "io.github.jho951"
-    version = "1.0.0"
+    version = "2.0.0"
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 }
+
 
 subprojects {
     apply plugin: "java-library"
