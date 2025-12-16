@@ -11,6 +11,9 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/config" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/source-env" />
+            <option value="$PROJECT_DIR$/source-file" />
+            <option value="$PROJECT_DIR$/spi" />
           </set>
         </option>
       </GradleProjectSettings>
