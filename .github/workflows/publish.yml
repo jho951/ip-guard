@@ -1,27 +1,49 @@
-name: Publish to GitHub Packages
+name: Release (tag + publish)
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
 
-      - name: Publish
+      - name: Read version from gradle.properties
+        id: ver
+        run: |
+          VERSION=$(grep '^version=' gradle.properties | cut -d'=' -f2 | tr -d ' \r')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag if missing
+        run: |
+          TAG="v${{ steps.ver.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag exists: $TAG"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "release: $TAG"
+            git push origin "$TAG"
+          fi
+
+      - name: Publish to GitHub Packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
+          ORG_GRADLE_PROJECT_gprUser: ${{ github.actor }}
+          ORG_GRADLE_PROJECT_gprKey: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew clean publish
