@@ -35,8 +35,8 @@ subprojects {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/jho951/ip-guard")
                 credentials {
-                    username = findProperty("githubUsername")
-                    password = findProperty("githubToken")
+                    username = findProperty("githubUsername") ?: System.getenv("GITHUB_ACTOR")
+                    password = findProperty("githubToken") ?: System.getenv("GITHUB_TOKEN")
                 }
             }
         }
