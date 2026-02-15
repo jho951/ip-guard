@@ -45,7 +45,7 @@ ipguard:
 환경변수 예시:
 
 ```bash
-export IPGUARD_RULES=$'127.0.0.1\n10.0.0.0/8\n192.168.1.10-192.168.1.20'
+export IPGUARD_RULES=$'127.0.0.1\n10.0.0.0/8\n192.168.1.10-192.168.1.20\n2001:db8::/32'
 ```
 
 서버 기동 후 요청 IP가 룰에 매칭되지 않으면 `403`과 함께 아래 형태의 응답을 반환합니다.
@@ -101,6 +101,11 @@ String reason = decision.reason();
 `IpGuardFilter`는 클라이언트 IP를 다음 순서로 추출합니다.
 1. `X-Forwarded-For` 첫 번째 값
 2. `HttpServletRequest#getRemoteAddr()`
+
+엔진 입력 정규화:
+- `[2001:db8::1]:443` 형태의 IPv6 + port 입력을 지원합니다.
+- `192.168.0.1:8080` 형태의 IPv4 + port 입력을 지원합니다.
+- `fe80::1%en0` 형태의 IPv6 zone suffix는 제거 후 비교합니다.
 
 프록시 환경에서는 `X-Forwarded-For`를 신뢰할 수 있도록 인프라(로드밸런서/리버스프록시) 설정을 먼저 맞추는 것을 권장합니다.
 

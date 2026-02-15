@@ -95,7 +95,22 @@ ip-guard/
 - 와일드카드는 연속형만 허용 (`10.*.*.*` 가능, `10.*.1.*` 불가)
 - `*.*.*.*`는 너무 넓은 규칙으로 예외
 
-### 4.4 Spring Boot 통합
+### 4.4 IP 파서 정규화
+파일: `core/src/main/java/com/ipguard/core/ip/IpParser.java`
+
+`IpGuardEngine#decide(rawIp)`에 전달된 입력은 파싱 전에 아래 규칙으로 정규화됩니다.
+- 양끝 공백 제거
+- `"..."`로 감싼 입력이면 따옴표 제거
+- `[IPv6]:port` 형태면 브래킷 내부 주소만 추출
+- `IPv4:port` 형태면 포트 제거
+- IPv6 zone(`%en0` 등) 제거
+
+예:
+- `[2001:db8::1]:443` -> `2001:db8::1`
+- `192.168.0.10:8080` -> `192.168.0.10`
+- `fe80::1%en0` -> `fe80::1`
+
+### 4.5 Spring Boot 통합
 파일:
 - `config/src/main/java/com/ipguard/config/IpGuardAutoConfiguration.java`
 - `config/src/main/java/com/ipguard/config/IpGuardFilter.java`
