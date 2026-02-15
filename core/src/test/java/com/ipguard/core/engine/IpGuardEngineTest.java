@@ -29,4 +29,49 @@ class IpGuardEngineTest {
 		assertTrue(d.allowed());
 		assertEquals("DEFAULT_ALLOW", d.reason());
 	}
+
+	@Test
+	void ipv6_single_match() {
+		RuleSource src = () -> "2001:db8::1\n";
+		IpGuardEngine engine = new IpGuardEngine(src, false);
+
+		var d1 = engine.decide("2001:db8::1");
+		var d2 = engine.decide("2001:db8::2");
+
+		assertTrue(d1.allowed());
+		assertFalse(d2.allowed());
+	}
+
+	@Test
+	void ipv6_cidr_match() {
+		RuleSource src = () -> "2001:db8::/32\n";
+		IpGuardEngine engine = new IpGuardEngine(src, false);
+
+		var d1 = engine.decide("2001:db8:1::10");
+		var d2 = engine.decide("2001:dead::1");
+
+		assertTrue(d1.allowed());
+		assertFalse(d2.allowed());
+	}
+
+	@Test
+	void ipv6_range_match() {
+		RuleSource src = () -> "2001:db8::1-2001:db8::f\n";
+		IpGuardEngine engine = new IpGuardEngine(src, false);
+
+		var d1 = engine.decide("2001:db8::8");
+		var d2 = engine.decide("2001:db8::10");
+
+		assertTrue(d1.allowed());
+		assertFalse(d2.allowed());
+	}
+
+	@Test
+	void bracket_ipv6_with_port_is_supported() {
+		RuleSource src = () -> "2001:db8::1\n";
+		IpGuardEngine engine = new IpGuardEngine(src, false);
+
+		var d = engine.decide("[2001:db8::1]:443");
+		assertTrue(d.allowed());
+	}
 }

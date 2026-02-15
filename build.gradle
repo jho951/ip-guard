@@ -1,10 +1,6 @@
-plugins {
-    id "java"
-}
-
 allprojects {
     group = "io.github.jho951"
-    version = "${version}"
+    version = "2.0.3"
 
     repositories {
         mavenCentral()
@@ -27,6 +23,7 @@ subprojects {
         options.release = 17
     }
 
+
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -39,10 +36,11 @@ subprojects {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/jho951/ip-guard")
                 credentials {
-                    username = findProperty("githubUsername") ?: System.getenv("GITHUB_ACTOR")
-                    password = findProperty("githubToken") ?: System.getenv("GITHUB_TOKEN")
+                    username = findProperty("githubUsername")
+                    password = findProperty("githubToken")
                 }
             }
         }
+
     }
 }
