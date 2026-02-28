@@ -1,0 +1,148 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.jho951",
+    "module": "ip-guard-config",
+    "version": "2.0.3",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.14"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-core",
+          "version": {
+            "requires": "2.0.3"
+          }
+        },
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-spi",
+          "version": {
+            "requires": "2.0.3"
+          }
+        },
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-source-env",
+          "version": {
+            "requires": "2.0.3"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-autoconfigure",
+          "version": {
+            "requires": "3.3.5"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-configuration-processor",
+          "version": {
+            "requires": "3.3.5"
+          }
+        },
+        {
+          "group": "org.springframework",
+          "module": "spring-web",
+          "version": {
+            "requires": "6.1.14"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "ip-guard-config-2.0.3.jar",
+          "url": "ip-guard-config-2.0.3.jar",
+          "size": 4668,
+          "sha512": "75d992b4732183da375f38d9558db62ee25bd919f3b36c89f21165c9e4e1bfc30be162ad199ee9e78a245daddc9152fa8737cda6a0dafd637f41b46a43ecb30c",
+          "sha256": "71b1b1d370d7addf14ff35460abe7eba73cbe74483a4f5d5973e5f2452e69c6b",
+          "sha1": "eefa5c5a549c16039fc8a1c464ec85501768c815",
+          "md5": "602ba38754b930669915a10409fa28cf"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-core",
+          "version": {
+            "requires": "2.0.3"
+          }
+        },
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-spi",
+          "version": {
+            "requires": "2.0.3"
+          }
+        },
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-source-env",
+          "version": {
+            "requires": "2.0.3"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-autoconfigure",
+          "version": {
+            "requires": "3.3.5"
+          }
+        },
+        {
+          "group": "org.springframework.boot",
+          "module": "spring-boot-configuration-processor",
+          "version": {
+            "requires": "3.3.5"
+          }
+        },
+        {
+          "group": "org.springframework",
+          "module": "spring-web",
+          "version": {
+            "requires": "6.1.14"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "ip-guard-config-2.0.3.jar",
+          "url": "ip-guard-config-2.0.3.jar",
+          "size": 4668,
+          "sha512": "75d992b4732183da375f38d9558db62ee25bd919f3b36c89f21165c9e4e1bfc30be162ad199ee9e78a245daddc9152fa8737cda6a0dafd637f41b46a43ecb30c",
+          "sha256": "71b1b1d370d7addf14ff35460abe7eba73cbe74483a4f5d5973e5f2452e69c6b",
+          "sha1": "eefa5c5a549c16039fc8a1c464ec85501768c815",
+          "md5": "602ba38754b930669915a10409fa28cf"
+        }
+      ]
+    }
+  ]
+}

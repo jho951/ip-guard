@@ -27,21 +27,18 @@ jobs:
           pr_title="${{ github.event.pull_request.title }}"
           pr_url="${{ github.event.pull_request.html_url }}"
           author="${{ github.event.pull_request.user.login }}"
-
-          content="🔔 새로운 PR 알림\n"
-          content+="📦 Repository: ${repo}\n"
-          content+="🔢 PR: #${pr_number}\n"
-          content+="✏️ 제목: ${pr_title}\n"
-          content+="👤 작성자: ${author}\n"
-          content+="🔗 링크: ${pr_url}"
-
-          # 줄바꿈을 \n 으로 바꿔서 JSON에 안전하게 넣기
-          json_content=$(printf '%s' "$content" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
-
-          payload="{\"content\": ${json_content}}"
-
+          
+          # 메시지 본문 구성
+          content="🔔 **새로운 PR 알림**\n📦 **Repo**: ${repo}\n🔢 **PR**: #${pr_number}\n✏️ **제목**: ${pr_title}\n👤 **작성자**: ${author}\n🔗 **링크**: ${pr_url}"
+          
+          # JSON 내부에서 문자가 깨지지 않도록 python을 사용해 이스케이프 처리
+          json_content=$(printf '%s' "$content" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+          
+          # 🚀 핵심 수정 부분: -H "User-Agent: ..." 추가
           echo "📤 Sending payload to Discord..."
-          curl -sS -H "Content-Type: application/json" \
+          curl -sS \
+               -H "Content-Type: application/json" \
+               -H "User-Agent: GitHub-Actions-Discord-Bot" \
                -X POST \
-               -d "$payload" \
+               -d "{\"content\": ${json_content}}" \
                "$DISCORD_WEBHOOK_URL"

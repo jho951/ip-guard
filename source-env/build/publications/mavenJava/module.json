@@ -1,0 +1,78 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.jho951",
+    "module": "ip-guard-source-env",
+    "version": "2.0.3",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.14"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-spi",
+          "version": {
+            "requires": "2.0.3"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "ip-guard-source-env-2.0.3.jar",
+          "url": "ip-guard-source-env-2.0.3.jar",
+          "size": 1151,
+          "sha512": "467bdb4faea575ea40b11dcb3ad7d97b0ac80f8696fdc359c8232a3912418a30eb980489f308584d18f695b454332965ffe9cbc7eab6de91f3f29fecb05e26ed",
+          "sha256": "a6b5b3c843140203e74a93a94520f0ca452d857d87e9a3f235493caba45eb273",
+          "sha1": "8dfa1ab1667bccceb92374cb5319ddeb8d4eb7a3",
+          "md5": "545194807752484aae81bf811ae4e156"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.jho951",
+          "module": "ip-guard-spi",
+          "version": {
+            "requires": "2.0.3"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "ip-guard-source-env-2.0.3.jar",
+          "url": "ip-guard-source-env-2.0.3.jar",
+          "size": 1151,
+          "sha512": "467bdb4faea575ea40b11dcb3ad7d97b0ac80f8696fdc359c8232a3912418a30eb980489f308584d18f695b454332965ffe9cbc7eab6de91f3f29fecb05e26ed",
+          "sha256": "a6b5b3c843140203e74a93a94520f0ca452d857d87e9a3f235493caba45eb273",
+          "sha1": "8dfa1ab1667bccceb92374cb5319ddeb8d4eb7a3",
+          "md5": "545194807752484aae81bf811ae4e156"
+        }
+      ]
+    }
+  ]
+}
