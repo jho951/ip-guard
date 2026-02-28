@@ -1,49 +1,40 @@
-name: Release (tag + publish)
+name: Publish (GitHub Packages)
 
 on:
   push:
-    branches: [ "main" ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   packages: write
 
+env:
+  JAVA_VERSION: "17"
+
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
-          cache: gradle
+          java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Read version from gradle.properties
-        id: ver
-        run: |
-          VERSION=$(grep '^version=' gradle.properties | cut -d'=' -f2 | tr -d ' \r')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
 
-      - name: Create and push tag if missing
-        run: |
-          TAG="v${{ steps.ver.outputs.version }}"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag exists: $TAG"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "release: $TAG"
-            git push origin "$TAG"
-          fi
+      - name: Build & Test
+        run: ./gradlew clean build --no-daemon --stacktrace
 
-      - name: Publish to GitHub Packages
+      - name: Publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORG_GRADLE_PROJECT_githubUsername: ${{ github.actor }}
-          ORG_GRADLE_PROJECT_githubToken: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew clean publish
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+        run: ./gradlew publish --no-daemon --stacktrace
