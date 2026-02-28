@@ -24,10 +24,14 @@ public enum ErrorCode {
 	// -----------------------------
 	RULE_LOADING_FAILED("IP008", "IP 규칙을 읽지 못했습니다."),
 	ENGINE_INIT_FAILED("IP009", "IpGuard engine을 읽지 못했습니다."),
+
+
 	// -----------------------------
 	// 파일
 	// -----------------------------
-	ERROR_RULE_FILE_IO("IP010","파일을 읽지 못했습니다.");
+	ERROR_RULE_FILE_IO("IP010","파일을 읽지 못했습니다."),
+
+	RULE_FAMILY_MISMATCH("IP011","");
 	// -----------------------------
 	// fields
 	// -----------------------------

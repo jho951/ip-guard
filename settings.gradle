@@ -1,2 +1,2 @@
 rootProject.name = "ip-guard"
-include 'core', 'config'
+include 'core', 'config','source-env','source-file','spi'

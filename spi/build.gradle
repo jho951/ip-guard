@@ -1,5 +1,4 @@
 dependencies {
-    api project(":spi")
     testImplementation platform("org.junit:junit-bom:${junit}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

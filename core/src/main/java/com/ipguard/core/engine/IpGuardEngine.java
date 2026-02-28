@@ -1,51 +1,45 @@
 package com.ipguard.core.engine;
 
-import java.util.List;
-
-import com.ipguard.core.rules.IpRuleParser;
-import com.ipguard.core.util.IpUtils;
-
-import com.ipguard.core.rules.IpRuleInterface;
+import com.ipguard.core.decision.Decision;
+import com.ipguard.core.ip.IpAddress;
+import com.ipguard.core.ip.IpParser;
+import com.ipguard.core.rules.RuleParser;
+import com.ipguard.core.rules.RuleSet;
+import com.ipguard.spi.RuleSource;
 
 /**
- * ip-guard 엔진.
- * - 생성 시 RuleSource에서 RuleSet을 한 번 로드하고 고정 사용 (v1: 리로드 없음)
+ * v2 IpGuardEngine
+ * - IPv4/IPv6 통합
+ * - defaultAllow 정책 명확화
  */
 public final class IpGuardEngine {
 
-	private final List<IpRuleInterface> rules;
+	private final RuleSet rules;
+	private final boolean defaultAllow;
 
-	// 1) 가장 순수한 생성자: 이미 파싱된 룰 리스트
-	public IpGuardEngine(List<IpRuleInterface> rules) {
-		this.rules = List.copyOf(rules);
-	}
-
-	// 2) 편의 생성자: 룰 문자열 직접 넣기
-	public static IpGuardEngine fromRawRules(String rawRules) {
-		List<IpRuleInterface> rules = IpRuleParser.parse(rawRules);
-		return new IpGuardEngine(rules);
-	}
-
-	// (선택) 3) RuleSource 기반 생성자 (파일/ENV/DB 어댑터용)
-	public IpGuardEngine(RuleSource ruleSource) {
-		this(ruleSource.loadRules());
+	public IpGuardEngine(RuleSource ruleSource, boolean defaultAllow) {
+		this.defaultAllow = defaultAllow;
+		String raw = (ruleSource == null) ? "" : ruleSource.loadRaw();
+		this.rules = new RuleSet(RuleParser.parse(raw));
 	}
 
 	public Decision decide(String rawIp) {
-		String clientIp = IpUtils.normalizeClientIp(rawIp);
-		if (clientIp == null || clientIp.isBlank()) {
-			return Decision.DENY;
-		}
-		for (IpRuleInterface rule : rules) {
-			if (rule.matches(clientIp)) {
-				return Decision.ALLOW;
-			}
-		}
-		return Decision.DENY;
-	}
 
-	// boolean 버전도 하나 있으면 사용성이 좋음
-	public boolean isAllowed(String rawIp) {
-		return decide(rawIp) == Decision.ALLOW;
+		final IpAddress ip;
+		try {
+			ip = IpParser.parse(rawIp);
+		} catch (Exception e) {
+			return Decision.deny("INVALID_IP");
+		}
+
+		if (rules.isEmpty()) {
+			return defaultAllow
+				? Decision.allow("DEFAULT_ALLOW")
+				: Decision.deny("DEFAULT_DENY");
+		}
+
+		return rules.anyMatch(ip)
+			? Decision.allow("MATCHED_RULE")
+			: Decision.deny("NO_MATCH");
 	}
 }

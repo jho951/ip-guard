@@ -1,27 +1,40 @@
-name: Publish to GitHub Packages
+name: Publish (GitHub Packages)
 
 on:
   push:
-    tags:
-      - "v*"
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  JAVA_VERSION: "17"
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build & Test
+        run: ./gradlew clean build --no-daemon --stacktrace
 
       - name: Publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-        run: ./gradlew clean publish
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+        run: ./gradlew publish --no-daemon --stacktrace
