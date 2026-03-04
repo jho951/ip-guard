@@ -2,7 +2,7 @@
 
 경량 IP 접근 제어 라이브러리입니다. 고정된 화이트리스트 규칙을 기반으로 요청 IP를 허용/차단합니다.
 
-현재 저장소는 멀티 모듈 Gradle 프로젝트이며, IPv4/IPv6 파싱과 규칙 매칭 엔진, 규칙 소스(SPI), Spring Boot 자동 설정을 제공합니다.
+현재 저장소는 멀티 모듈 Gradle 프로젝트이며, 프레임워크 비의존 엔진(`core`)과 Spring Boot 통합 어댑터(`config`)를 분리해 제공합니다.
 
 ## 핵심 기능
 - 단일 IP, CIDR, 범위(`start-end`), IPv4 와일드카드(`192.168.*.*`) 규칙 지원
@@ -16,12 +16,20 @@
 - `core`: IP 파싱, 룰 파싱/매칭, 결정 엔진 (`IpGuardEngine`)
 - `source-env`: 환경변수 기반 `RuleSource` 구현
 - `source-file`: 파일 기반 `RuleSource` 구현
-- `config`: Spring Boot 자동 설정 + HTTP 필터
+- `config`: Spring Boot 스타터 (`IpGuardAutoConfiguration`, `IpGuardFilter`)
+
+## Maven 좌표
+- `io.github.jho951:ip-guard-spi:2.0.3`
+- `io.github.jho951:ip-guard-core:2.0.3`
+- `io.github.jho951:ip-guard-source-env:2.0.3`
+- `io.github.jho951:ip-guard-source-file:2.0.3`
+- `io.github.jho951:ip-guard-spring-boot-starter:2.0.3`
 
 ## 빠른 시작
 
 ### 1) Spring Boot에서 사용
-`config` 모듈은 자동으로 다음 Bean을 구성합니다.
+Spring Boot에서는 `ip-guard-spring-boot-starter`를 사용합니다.
+자동으로 다음 Bean을 구성합니다.
 - `RuleSource` (기본: `EnvRuleSource`)
 - `IpGuardEngine`
 - `IpGuardFilter`
@@ -30,7 +38,7 @@
 
 ```gradle
 dependencies {
-    implementation "io.github.jho951:ip-guard-config:2.0.3"
+    implementation "io.github.jho951:ip-guard-spring-boot-starter:2.0.3"
 }
 ```
 
@@ -55,6 +63,15 @@ export IPGUARD_RULES=$'127.0.0.1\n10.0.0.0/8\n192.168.1.10-192.168.1.20\n2001:db
 ```
 
 ### 2) 코어 엔진만 직접 사용
+
+Spring 없이 Java 서비스에서 재사용하려면 `core` + 룰 소스 구현을 직접 조합하면 됩니다.
+
+```gradle
+dependencies {
+    implementation "io.github.jho951:ip-guard-core:2.0.3"
+    implementation "io.github.jho951:ip-guard-source-file:2.0.3" // 또는 source-env
+}
+```
 
 ```java
 RuleSource source = () -> "127.0.0.1\n10.10.*.*";
