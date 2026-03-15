@@ -46,8 +46,11 @@ jobs:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           MAVEN_CENTRAL_NAMESPACE: ${{ secrets.MAVEN_CENTRAL_NAMESPACE }}
-        if: ${{ secrets.MAVEN_CENTRAL_NAMESPACE != '' }}
         run: |
+          if [ -z "${MAVEN_CENTRAL_NAMESPACE}" ]; then
+            echo "MAVEN_CENTRAL_NAMESPACE is not set; skipping Central Portal finalize step."
+            exit 0
+          fi
           AUTH_TOKEN="$(printf '%s' "${MAVEN_CENTRAL_USERNAME}:${MAVEN_CENTRAL_PASSWORD}" | base64)"
           curl --fail-with-body \
             --request POST \
