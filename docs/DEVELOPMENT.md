@@ -22,7 +22,7 @@ ip-guard/
 ├─ spi/          # RuleSource SPI
 ├─ source-env/   # 환경변수 기반 RuleSource
 ├─ source-file/  # 파일 기반 RuleSource
-├─ config/       # Spring Boot 자동설정 + 필터
+├─ config/       # Spring Boot 스타터(자동설정 + 필터)
 ├─ build.gradle  # 공통 그룹/버전/퍼블리싱 설정
 └─ settings.gradle
 ```
@@ -32,6 +32,13 @@ ip-guard/
 - `source-env` -> `spi`
 - `source-file` -> `spi`
 - `config` -> `core`, `spi`, `source-env`
+
+아티팩트 매핑:
+- `spi` -> `ip-guard-spi`
+- `core` -> `ip-guard-core`
+- `source-env` -> `ip-guard-source-env`
+- `source-file` -> `ip-guard-source-file`
+- `config` -> `ip-guard-spring-boot-starter`
 
 ## 3. 빌드/테스트
 
@@ -148,22 +155,57 @@ public final class DbRuleSource implements RuleSource {
 루트 `build.gradle` 기준:
 - `group = io.github.jho951`
 - `version = 2.0.3`
-- artifactId 패턴: `ip-guard-{module}`
+- artifactId:
+  - `ip-guard-spi`
+  - `ip-guard-core`
+  - `ip-guard-source-env`
+  - `ip-guard-source-file`
+  - `ip-guard-spring-boot-starter`
 
 퍼블리시 대상:
 - GitHub Packages (`https://maven.pkg.github.com/jho951/ip-guard`)
+- Sonatype Central
 
-필요 프로퍼티:
+GitHub Packages 필요 프로퍼티:
 - `githubUsername`
 - `githubToken`
 
-예시:
+실행 예시:
 
 ```bash
-./gradlew publish \
+./gradlew publishToGitHubPackages \
   -PgithubUsername=<username> \
   -PgithubToken=<token>
 ```
+
+Sonatype Central 필요 프로퍼티:
+- `centralUsername`
+- `centralPassword`
+- `signingKey` (ASCII-armored private key)
+- `signingPassword`
+
+GitHub Actions 시크릿으로는 아래 이름도 지원합니다:
+- `MAVEN_CENTRAL_USERNAME`
+- `MAVEN_CENTRAL_PASSWORD`
+- `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
+- `MAVEN_CENTRAL_GPG_PASSPHRASE`
+
+주의:
+- `centralUsername` / `centralPassword`에는 Sonatype Central Portal의 user token 값을 사용합니다.
+- GitHub Actions Central 배포는 `publish`가 아니라 `publishToSonatypeCentral` task를 사용해야 합니다. 그렇지 않으면 GitHub Packages 퍼블리시까지 같이 시도합니다.
+
+실행 예시:
+
+```bash
+./gradlew publishToSonatypeCentral \
+  -PcentralUsername=<central-portal-username> \
+  -PcentralPassword=<central-portal-password> \
+  -PsigningKey="$(cat ./private.asc)" \
+  -PsigningPassword=<gpg-passphrase>
+```
+
+GitHub Actions:
+- `.github/workflows/publish.yml`: Sonatype Central 배포(tag push 또는 수동 실행)
 
 ## 7. 코딩/테스트 가이드
 - Java 17 기준 코드 작성

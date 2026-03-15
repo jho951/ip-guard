@@ -10,6 +10,26 @@
   <groupId>io.github.jho951</groupId>
   <artifactId>ip-guard-core</artifactId>
   <version>2.0.3</version>
+  <name>ip-guard-core</name>
+  <description>Framework-agnostic IP rule parsing and decision engine</description>
+  <url>https://github.com/jho951/ip-guard</url>
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>jho951</id>
+      <name>jho951</name>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/jho951/ip-guard.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:jho951/ip-guard.git</developerConnection>
+    <url>https://github.com/jho951/ip-guard</url>
+  </scm>
   <dependencies>
     <dependency>
       <groupId>io.github.jho951</groupId>

@@ -1,42 +1,33 @@
-HELP.md
+# System
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+
+# Java
+*.class
+*.log
+
+# Gradle
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# secret
+.env*
+.envrc
+docker/.generated
 
-### IntelliJ IDEA ###
+# IntelliJ
 .idea
 *.iws
 *.iml
 *.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Data
+data/
 
-### VS Code ###
-.vscode/
-.env
-.env.dev
-.env.*
-
-gradle.properties
+# Docs or helpers
+HELP.md
+.gitattributes
