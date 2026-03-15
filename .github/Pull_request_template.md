@@ -109,5 +109,5 @@ UI 변경, 에러 화면, API 응답 예시 등이 있다면 이미지로 첨부
 -->
 
 - (예)
-    - Before: ![before](/images/admin-user-list-before.png)
-    - After : ![after](/images/admin-user-list-after.png)
+    - Before:
+    - After :

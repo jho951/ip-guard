@@ -2,43 +2,51 @@ name: Notify Discord on PR
 
 on:
   pull_request:
+    types: [opened, reopened]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Check Discord webhook env
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
-            echo "❌ DISCORD_WEBHOOK_URL is EMPTY. Check your GitHub Actions secret."
-            exit 1
-          fi
-          echo "✅ DISCORD_WEBHOOK_URL is set. (length: ${#DISCORD_WEBHOOK_URL})"
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
 
-      - name: Send message to Discord
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    env:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      REPO: ${{ github.repository }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      PR_TITLE: ${{ github.event.pull_request.title }}
+      AUTHOR: ${{ github.event.pull_request.user.login }}
+      AVATAR: ${{ github.event.pull_request.user.avatar_url }}
+
+    steps:
+      - name: Send Rich Embed to Discord
+        if: ${{ env.DISCORD_WEBHOOK_URL != '' }}
         run: |
-          repo="${{ github.repository }}"
-          pr_number="${{ github.event.pull_request.number }}"
-          pr_title="${{ github.event.pull_request.title }}"
-          pr_url="${{ github.event.pull_request.html_url }}"
-          author="${{ github.event.pull_request.user.login }}"
-          
-          # 메시지 본문 구성
-          content="🔔 **새로운 PR 알림**\n📦 **Repo**: ${repo}\n🔢 **PR**: #${pr_number}\n✏️ **제목**: ${pr_title}\n👤 **작성자**: ${author}\n🔗 **링크**: ${pr_url}"
-          
-          # JSON 내부에서 문자가 깨지지 않도록 python을 사용해 이스케이프 처리
-          json_content=$(printf '%s' "$content" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
-          
-          # 🚀 핵심 수정 부분: -H "User-Agent: ..." 추가
-          echo "📤 Sending payload to Discord..."
-          curl -sS \
-               -H "Content-Type: application/json" \
-               -H "User-Agent: GitHub-Actions-Discord-Bot" \
-               -X POST \
-               -d "{\"content\": ${json_content}}" \
-               "$DISCORD_WEBHOOK_URL"
+          python3 - <<'PY'
+          import json, os, urllib.request
+
+          payload = {
+            "embeds": [{
+              "title": "🔔 새로운 Pull Request가 등록되었습니다",
+              "url": os.environ["PR_URL"],
+              "color": 5814783,
+              "fields": [
+                {"name": "Repository", "value": os.environ["REPO"], "inline": True},
+                {"name": "Author", "value": os.environ["AUTHOR"], "inline": True},
+                {"name": "Title", "value": os.environ["PR_TITLE"], "inline": False},
+              ],
+              "thumbnail": {"url": os.environ["AVATAR"]},
+              "footer": {"text": "Auth Multi-Module Project CI"},
+            }]
+          }
+
+          data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+          req = urllib.request.Request(
+            os.environ["DISCORD_WEBHOOK_URL"],
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+          )
+          with urllib.request.urlopen(req) as res:
+            res.read()
+          PY

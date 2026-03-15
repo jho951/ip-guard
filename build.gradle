@@ -1,6 +1,6 @@
 allprojects {
     group = "io.github.jho951"
-    version = findProperty("version") ?: "2.0.3"
+    version = findProperty("version")
 
     repositories {
         mavenCentral()
@@ -14,9 +14,7 @@ subprojects {
     apply plugin: "signing"
 
     java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(17)
-        }
+        toolchain {languageVersion = JavaLanguageVersion.of(java_version)}
         withSourcesJar()
         withJavadocJar()
     }
@@ -87,16 +85,24 @@ subprojects {
                 def snapshotRepo = "https://central.sonatype.com/repository/maven-snapshots/"
                 url = uri(version.toString().endsWith("SNAPSHOT") ? snapshotRepo : releaseRepo)
                 credentials {
-                    username = findProperty("centralUsername") ?: System.getenv("CENTRAL_USERNAME")
-                    password = findProperty("centralPassword") ?: System.getenv("CENTRAL_PASSWORD")
+                    username = findProperty("centralUsername")
+                        ?: System.getenv("CENTRAL_USERNAME")
+                        ?: System.getenv("MAVEN_CENTRAL_USERNAME")
+                    password = findProperty("centralPassword")
+                        ?: System.getenv("CENTRAL_PASSWORD")
+                        ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
                 }
             }
         }
     }
 
     signing {
-        def signingKey = findProperty("signingKey") ?: System.getenv("SIGNING_KEY")
-        def signingPassword = findProperty("signingPassword") ?: System.getenv("SIGNING_PASSWORD")
+        def signingKey = findProperty("signingKey")
+            ?: System.getenv("SIGNING_KEY")
+            ?: System.getenv("MAVEN_CENTRAL_GPG_PRIVATE_KEY")
+        def signingPassword = findProperty("signingPassword")
+            ?: System.getenv("SIGNING_PASSWORD")
+            ?: System.getenv("MAVEN_CENTRAL_GPG_PASSPHRASE")
         if (signingKey) {
             useInMemoryPgpKeys(signingKey, signingPassword)
             sign publishing.publications.mavenJava

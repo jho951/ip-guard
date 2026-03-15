@@ -184,6 +184,16 @@ Sonatype Central 필요 프로퍼티:
 - `signingKey` (ASCII-armored private key)
 - `signingPassword`
 
+GitHub Actions 시크릿으로는 아래 이름도 지원합니다:
+- `MAVEN_CENTRAL_USERNAME`
+- `MAVEN_CENTRAL_PASSWORD`
+- `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
+- `MAVEN_CENTRAL_GPG_PASSPHRASE`
+
+주의:
+- `centralUsername` / `centralPassword`에는 Sonatype Central Portal의 user token 값을 사용합니다.
+- GitHub Actions Central 배포는 `publish`가 아니라 `publishToSonatypeCentral` task를 사용해야 합니다. 그렇지 않으면 GitHub Packages 퍼블리시까지 같이 시도합니다.
+
 실행 예시:
 
 ```bash
@@ -195,8 +205,7 @@ Sonatype Central 필요 프로퍼티:
 ```
 
 GitHub Actions:
-- `.github/workflows/publish.yml`: GitHub Packages 배포
-- `.github/workflows/publish-central.yml`: Sonatype Central 배포
+- `.github/workflows/publish.yml`: Sonatype Central 배포(tag push 또는 수동 실행)
 
 ## 7. 코딩/테스트 가이드
 - Java 17 기준 코드 작성
