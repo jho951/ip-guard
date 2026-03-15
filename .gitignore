@@ -9,8 +9,11 @@ ehthumbs.db
 *.log
 
 # Gradle
-.gradle
+.gradle/
+.gradle-local/
 build/
+**/build/
+*.kotlin_module
 !gradle/wrapper/gradle-wrapper.jar
 
 # secret
@@ -19,7 +22,7 @@ build/
 docker/.generated
 
 # IntelliJ
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
