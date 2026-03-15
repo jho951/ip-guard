@@ -154,7 +154,7 @@ public final class DbRuleSource implements RuleSource {
 ## 6. 릴리즈/퍼블리싱
 루트 `build.gradle` 기준:
 - `group = io.github.jho951`
-- `version = 2.0.3`
+- `version = 2.0.4`
 - artifactId:
   - `ip-guard-spi`
   - `ip-guard-core`
@@ -179,29 +179,38 @@ GitHub Packages 필요 프로퍼티:
 ```
 
 Sonatype Central 필요 프로퍼티:
+- `mavenCentralUsername`
+- `mavenCentralPassword`
+- `mavenCentralSigningKey` (ASCII-armored private key 또는 Base64/escaped newline 문자열)
+- `mavenCentralSigningPassword`
 - `centralUsername`
 - `centralPassword`
 - `signingKey` (ASCII-armored private key)
 - `signingPassword`
+- `ossrhUsername`
+- `ossrhPassword`
 
 GitHub Actions 시크릿으로는 아래 이름도 지원합니다:
 - `MAVEN_CENTRAL_USERNAME`
 - `MAVEN_CENTRAL_PASSWORD`
 - `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
 - `MAVEN_CENTRAL_GPG_PASSPHRASE`
+- `MAVEN_CENTRAL_RELEASE_URL`
+- `MAVEN_CENTRAL_SNAPSHOT_URL`
 
 주의:
-- `centralUsername` / `centralPassword`에는 Sonatype Central Portal의 user token 값을 사용합니다.
+- `mavenCentralUsername` / `mavenCentralPassword` 또는 `centralUsername` / `centralPassword`에는 Sonatype Central Portal의 user token 값을 사용합니다.
+- `MAVEN_CENTRAL_GPG_PRIVATE_KEY`는 ASCII-armored key 원문, `\n`이 포함된 문자열, Base64 인코딩 문자열을 모두 허용합니다.
 - GitHub Actions Central 배포는 `publish`가 아니라 `publishToSonatypeCentral` task를 사용해야 합니다. 그렇지 않으면 GitHub Packages 퍼블리시까지 같이 시도합니다.
 
 실행 예시:
 
 ```bash
 ./gradlew publishToSonatypeCentral \
-  -PcentralUsername=<central-portal-username> \
-  -PcentralPassword=<central-portal-password> \
-  -PsigningKey="$(cat ./private.asc)" \
-  -PsigningPassword=<gpg-passphrase>
+  -PmavenCentralUsername=<central-portal-username> \
+  -PmavenCentralPassword=<central-portal-password> \
+  -PmavenCentralSigningKey="$(cat ./private.asc)" \
+  -PmavenCentralSigningPassword=<gpg-passphrase>
 ```
 
 GitHub Actions:

@@ -18,7 +18,7 @@
   - `spi`
 - 공통 정보:
   - `group`: `io.github.jho951`
-  - `version`: `2.0.3`
+  - `version`: `2.0.4`
   - Java Toolchain: 17
 
 ## 3. 테스트/빌드 상태
