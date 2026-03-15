@@ -13,6 +13,29 @@ subprojects {
     apply plugin: "maven-publish"
     apply plugin: "signing"
 
+    def safeProp = { name, defaultVal = "" ->
+        System.getenv(name) ?: (project.hasProperty(name) ? project.property(name) : defaultVal)
+    }
+
+    def normalizeSigningKey = { raw ->
+        def text = (raw ?: "").toString().trim()
+        if (!text) {
+            return ""
+        }
+
+        text = text.replace("\\r\\n", "\n").replace("\\n", "\n")
+
+        if (text.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----")) {
+            return text
+        }
+
+        try {
+            return new String(text.decodeBase64(), "UTF-8").trim()
+        } catch (Exception ignored) {
+            return text
+        }
+    }
+
     java {
         toolchain {languageVersion = JavaLanguageVersion.of(java_version)}
         withSourcesJar()
@@ -21,6 +44,12 @@ subprojects {
 
     tasks.withType(JavaCompile).configureEach {
         options.release = 17
+        options.encoding = "UTF-8"
+    }
+
+    tasks.withType(Javadoc).configureEach {
+        // Keep Javadoc jar generation from failing publication on doclint issues.
+        options.addStringOption("Xdoclint:none", "-quiet")
     }
 
     def moduleArtifactId = (project.name == "config")
@@ -81,31 +110,78 @@ subprojects {
 
             maven {
                 name = "SonatypeCentral"
-                def releaseRepo = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-                def snapshotRepo = "https://central.sonatype.com/repository/maven-snapshots/"
+                def releaseRepo = safeProp("MAVEN_CENTRAL_RELEASE_URL",
+                    findProperty("mavenCentralReleaseUrl")
+                        ?: "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
+                def snapshotRepo = safeProp("MAVEN_CENTRAL_SNAPSHOT_URL",
+                    findProperty("mavenCentralSnapshotUrl")
+                        ?: "https://central.sonatype.com/repository/maven-snapshots/")
                 url = uri(version.toString().endsWith("SNAPSHOT") ? snapshotRepo : releaseRepo)
                 credentials {
-                    username = findProperty("centralUsername")
-                        ?: System.getenv("CENTRAL_USERNAME")
+                    username = findProperty("mavenCentralUsername")
                         ?: System.getenv("MAVEN_CENTRAL_USERNAME")
-                    password = findProperty("centralPassword")
-                        ?: System.getenv("CENTRAL_PASSWORD")
+                        ?: findProperty("centralUsername")
+                        ?: System.getenv("CENTRAL_USERNAME")
+                        ?: findProperty("ossrhUsername")
+                        ?: System.getenv("OSSRH_USERNAME")
+                    password = findProperty("mavenCentralPassword")
                         ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
+                        ?: findProperty("centralPassword")
+                        ?: System.getenv("CENTRAL_PASSWORD")
+                        ?: findProperty("ossrhPassword")
+                        ?: System.getenv("OSSRH_PASSWORD")
                 }
             }
         }
     }
 
     signing {
-        def signingKey = findProperty("signingKey")
-            ?: System.getenv("SIGNING_KEY")
+        def signingKey = normalizeSigningKey(findProperty("mavenCentralSigningKey")
             ?: System.getenv("MAVEN_CENTRAL_GPG_PRIVATE_KEY")
-        def signingPassword = findProperty("signingPassword")
-            ?: System.getenv("SIGNING_PASSWORD")
+            ?: findProperty("signingKey")
+            ?: System.getenv("SIGNING_KEY"))
+        def signingPassword = findProperty("mavenCentralSigningPassword")
             ?: System.getenv("MAVEN_CENTRAL_GPG_PASSPHRASE")
+            ?: findProperty("signingPassword")
+            ?: System.getenv("SIGNING_PASSWORD")
         if (signingKey) {
             useInMemoryPgpKeys(signingKey, signingPassword)
             sign publishing.publications.mavenJava
+        }
+    }
+
+    tasks.withType(PublishToMavenRepository).configureEach {
+        doFirst {
+            if (repository.name != "SonatypeCentral") {
+                return
+            }
+
+            def username = (findProperty("mavenCentralUsername")
+                ?: System.getenv("MAVEN_CENTRAL_USERNAME")
+                ?: findProperty("centralUsername")
+                ?: System.getenv("CENTRAL_USERNAME")
+                ?: findProperty("ossrhUsername")
+                ?: System.getenv("OSSRH_USERNAME")
+                ?: "").toString()
+            def password = (findProperty("mavenCentralPassword")
+                ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
+                ?: findProperty("centralPassword")
+                ?: System.getenv("CENTRAL_PASSWORD")
+                ?: findProperty("ossrhPassword")
+                ?: System.getenv("OSSRH_PASSWORD")
+                ?: "").toString()
+            def signingKey = normalizeSigningKey(findProperty("mavenCentralSigningKey")
+                ?: System.getenv("MAVEN_CENTRAL_GPG_PRIVATE_KEY")
+                ?: findProperty("signingKey")
+                ?: System.getenv("SIGNING_KEY"))
+
+            if (!username || !password) {
+                throw new GradleException("Missing Maven Central credentials. Set MAVEN_CENTRAL_USERNAME/MAVEN_CENTRAL_PASSWORD or compatible aliases.")
+            }
+
+            if (!signingKey) {
+                throw new GradleException("Missing signing key. Set MAVEN_CENTRAL_GPG_PRIVATE_KEY or a compatible signing alias.")
+            }
         }
     }
 }
