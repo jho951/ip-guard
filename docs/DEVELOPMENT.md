@@ -154,7 +154,7 @@ public final class DbRuleSource implements RuleSource {
 ## 6. 릴리즈/퍼블리싱
 루트 `build.gradle` 기준:
 - `group = io.github.jho951`
-- `version = 2.0.4`
+- `version = 2.0.5`
 - artifactId:
   - `ip-guard-spi`
   - `ip-guard-core`
