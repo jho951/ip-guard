@@ -65,10 +65,18 @@ subprojects {
             .split(' ')
             .collect { part -> part.capitalize() }
             .join(' ')
+    def artifactIdByProject = [
+            "config"    : "ip-guard-spring-boot-starter",
+            "core"      : "ip-guard-core",
+            "spi"       : "ip-guard-spi",
+            "source-env": "ip-guard-source-env",
+            "source-file": "ip-guard-source-file"
+    ]
     def pomMetadata = pomMetadataByProject.get(project.name, [
             name       : fallbackProjectName,
             description: "IP guard module for the ip-guard multi-module repository."
     ])
+    def publishedArtifactId = artifactIdByProject.get(project.name, "ip-guard-${project.name}")
 
     java {
         toolchain {
@@ -129,7 +137,7 @@ subprojects {
                 from components.java
 
                 groupId = project.group.toString()
-                artifactId = project.name
+                artifactId = publishedArtifactId
                 version = project.version.toString()
 
                 pom {
