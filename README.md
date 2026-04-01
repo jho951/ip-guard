@@ -12,7 +12,7 @@
 - 특정 서비스명, 특정 도메인, 특정 배포 구조를 알지 않습니다.
 - 재사용 가능한 IP access-control 책임만 가집니다.
 
-현재 릴리스 기준 버전은 `2.0.5`입니다.
+현재 릴리스 기준 버전은 `1.0.0`입니다.
 
 ## 30초 요약
 
@@ -22,8 +22,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.jho951:ip-guard-spring-boot-starter:2.0.5")
-    implementation("io.github.jho951:ip-guard-source-env:2.0.5")
+    implementation("io.github.jho951:ip-guard-spring-boot-starter:1.0.0")
+    implementation("io.github.jho951:ip-guard-source-env:1.0.0")
 }
 ```
 

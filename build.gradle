@@ -211,3 +211,9 @@ subprojects {
         }
     }
 }
+
+tasks.register("publishToSonatypeCentral") {
+    group = "publishing"
+    description = "Publish all modules to Sonatype Central."
+    dependsOn(subprojects.collect { "${it.path}:publishMavenJavaPublicationToCentralPortalRepository" })
+}
