@@ -14,33 +14,27 @@ import java.io.IOException;
 public class IpGuardFilter extends OncePerRequestFilter {
 
 	private final IpGuardEngine engine;
+	private final ClientIpResolver clientIpResolver;
+	private final BlockResponseWriter blockResponseWriter;
 
-	public IpGuardFilter(IpGuardEngine engine) {
+	public IpGuardFilter(IpGuardEngine engine, ClientIpResolver clientIpResolver, BlockResponseWriter blockResponseWriter) {
 		this.engine = engine;
+		this.clientIpResolver = clientIpResolver;
+		this.blockResponseWriter = blockResponseWriter;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
 		throws ServletException, IOException {
 
-		String rawIp = extractClientIp(req);
+		String rawIp = clientIpResolver.resolve(req);
 		var decision = engine.decide(rawIp);
 
 		if (!decision.allowed()) {
-			res.setStatus(403);
-			res.setContentType("application/json;charset=UTF-8");
-			res.getWriter().write("{\"message\":\"IP_BLOCKED\",\"reason\":\"" + decision.reason() + "\"}");
+			blockResponseWriter.write(res, decision);
 			return;
 		}
 
 		chain.doFilter(req, res);
-	}
-
-	private String extractClientIp(HttpServletRequest req) {
-		String xff = req.getHeader("X-Forwarded-For");
-		if (xff != null && !xff.isBlank()) {
-			return xff.split(",")[0].trim();
-		}
-		return req.getRemoteAddr();
 	}
 }

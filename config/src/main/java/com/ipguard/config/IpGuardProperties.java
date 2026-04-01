@@ -11,9 +11,15 @@ public class IpGuardProperties {
 	private boolean defaultAllow = false;
 
 	/**
-	 * ENV에서 룰을 읽을 때 사용할 키
+	 * 클라이언트 IP 추출 전략
 	 */
-	private String envKey = "IPGUARD_RULES";
+	private ClientIpStrategy clientIpStrategy = ClientIpStrategy.REMOTE_ADDR_ONLY;
+
+	/**
+	 * trusted-proxy-chain 전략에서 신뢰할 프록시 목록
+	 * 한 줄/쉼표 구분으로 입력할 수 있다.
+	 */
+	private String trustedProxies = "";
 
 	public boolean isDefaultAllow() {
 		return defaultAllow;
@@ -23,11 +29,25 @@ public class IpGuardProperties {
 		this.defaultAllow = defaultAllow;
 	}
 
-	public String getEnvKey() {
-		return envKey;
+	public ClientIpStrategy getClientIpStrategy() {
+		return clientIpStrategy;
 	}
 
-	public void setEnvKey(String envKey) {
-		this.envKey = envKey;
+	public void setClientIpStrategy(ClientIpStrategy clientIpStrategy) {
+		this.clientIpStrategy = clientIpStrategy;
+	}
+
+	public String getTrustedProxies() {
+		return trustedProxies;
+	}
+
+	public void setTrustedProxies(String trustedProxies) {
+		this.trustedProxies = trustedProxies;
+	}
+
+	public enum ClientIpStrategy {
+		REMOTE_ADDR_ONLY,
+		XFF_FIRST,
+		TRUSTED_PROXY_CHAIN
 	}
 }

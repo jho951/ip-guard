@@ -2,6 +2,9 @@
 
 `ip-guard` 프로젝트의 개발/확장/릴리즈를 위한 문서입니다.
 
+이 저장소는 1계층 OSS를 대상으로 합니다. 따라서 여기에 들어가는 코드는
+특정 서비스명, 특정 도메인 모델, 특정 배포 구조, 특정 플랫폼 정책에 의존하면 안 됩니다.
+
 ## 1. 개발 환경
 - JDK 17
 - Gradle Wrapper (`./gradlew`)
@@ -20,8 +23,8 @@ java -version
 ip-guard/
 ├─ core/         # 엔진, 파서, 규칙 매칭 로직
 ├─ spi/          # RuleSource SPI
-├─ source-env/   # 환경변수 기반 RuleSource
-├─ source-file/  # 파일 기반 RuleSource
+├─ source-env/   # 환경변수 기반 RuleSource + auto-config
+├─ source-file/  # 파일 기반 RuleSource + auto-config
 ├─ config/       # Spring Boot 스타터(자동설정 + 필터)
 ├─ build.gradle  # 공통 그룹/버전/퍼블리싱 설정
 └─ settings.gradle
@@ -31,7 +34,9 @@ ip-guard/
 - `core` -> `spi`
 - `source-env` -> `spi`
 - `source-file` -> `spi`
-- `config` -> `core`, `spi`, `source-env`
+- `source-env` -> spring boot autoconfigure
+- `source-file` -> spring boot autoconfigure
+- `config` -> `core`, `spi`
 
 아티팩트 매핑:
 - `spi` -> `ip-guard-spi`
@@ -122,13 +127,27 @@ ip-guard/
 - `config/src/main/java/com/ipguard/config/IpGuardAutoConfiguration.java`
 - `config/src/main/java/com/ipguard/config/IpGuardFilter.java`
 - `config/src/main/java/com/ipguard/config/IpGuardProperties.java`
+- `config/src/main/java/com/ipguard/config/ClientIpResolver.java`
+- `config/src/main/java/com/ipguard/config/BlockResponseWriter.java`
+- `source-env/src/main/java/com/ipguard/env/EnvRuleSourceAutoConfiguration.java`
+- `source-env/src/main/java/com/ipguard/env/EnvRuleSourceProperties.java`
+- `source-file/src/main/java/com/ipguard/file/FileRuleSourceAutoConfiguration.java`
+- `source-file/src/main/java/com/ipguard/file/FileRuleSourceProperties.java`
 
 자동 등록 Bean:
-- `RuleSource` (기본: `EnvRuleSource`)
 - `IpGuardEngine`
 - `IpGuardFilter`
+- `RuleSource` (기본 제공은 `source-env` 모듈)
+- `ClientIpResolver`
+- `BlockResponseWriter`
 
 `@ConditionalOnMissingBean`이 적용되어 있으므로, 사용자가 동일 타입 Bean을 등록하면 기본 Bean 대신 사용자 Bean이 사용됩니다.
+
+필터 응답은 최소한의 공통 형식을 제공하되 `BlockResponseWriter`로 교체 가능해야 하며, gateway/auth/user/block 같은 상위 서비스 규약을 직접 강제하지 않습니다.
+
+`config`는 범용 starter 조립만 담당하고, 환경변수 기반 기본 `RuleSource`는 `source-env` 모듈이 담당합니다.
+`source-file`는 `ipguard.file.path`가 설정된 경우에만 파일 기반 `RuleSource`를 제공합니다.
+`config`의 클라이언트 IP 추출은 `ClientIpResolver`로 분리되어 있으며, `REMOTE_ADDR_ONLY`, `XFF_FIRST`, `TRUSTED_PROXY_CHAIN` 전략을 선택할 수 있습니다.
 
 ## 5. 새 RuleSource 추가 방법
 예: DB/Redis/Config Server 기반 소스
@@ -137,7 +156,12 @@ ip-guard/
 2. `RuleSource` 구현
 3. 실패 시 동작 정책 결정
    - 현재 구현들은 실패 시 빈 문자열로 폴백
-4. 필요하면 `config`에서 기본 `RuleSource` 교체 가능
+4. 필요하면 `source-env` 또는 `source-file` auto-config, 혹은 애플리케이션 레벨에서 기본 `RuleSource` 교체 가능
+
+주의:
+- 여기서 만드는 source는 범용 RuleSource여야 합니다.
+- 특정 서비스 전용 키 설계나 도메인 규칙을 내장하지 마세요.
+- 플랫폼 전용 조합 규칙은 2계층에서 다루는 것이 맞습니다.
 
 예시 스켈레톤:
 
@@ -224,8 +248,9 @@ GitHub Actions:
 
 ## 8. 트러블슈팅
 - 규칙이 적용되지 않을 때:
-  - `ipguard.env-key` 값 확인
+  - `ipguard.env.env-key` 값 확인
   - 실제 환경변수 존재 여부 확인
   - 규칙 문법(CIDR prefix, range 구분자, wildcard 형태) 확인
 - 프록시 뒤에서 오탐 차단 시:
-  - `X-Forwarded-For` 전달 및 신뢰 체인 설정 확인
+  - `ipguard.client-ip-strategy` 설정 확인
+  - `trusted-proxies` 설정 확인

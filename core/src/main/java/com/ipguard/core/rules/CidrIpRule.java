@@ -1,7 +1,5 @@
 package com.ipguard.core.rules;
 
-import com.ipguard.core.exception.ErrorCode;
-import com.ipguard.core.exception.IpGuardException;
 import com.ipguard.core.ip.IpAddress;
 import com.ipguard.core.ip.IpFamily;
 
@@ -20,7 +18,7 @@ public final class CidrIpRule implements IpRule {
 
 		int max = (family == IpFamily.IPV4) ? 32 : 128;
 		if (prefixLen < 0 || prefixLen > max) {
-			throw new IpGuardException(ErrorCode.UNSUPPORTED_RULE_TYPE, "invalid prefixLen: " + prefixLen);
+			throw new IllegalArgumentException("invalid prefixLen: " + prefixLen);
 		}
 
 		this.mask = prefixLen == 0

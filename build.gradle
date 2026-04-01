@@ -4,7 +4,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        mavenLocal()
     }
 }
 
@@ -13,187 +12,194 @@ subprojects {
     apply plugin: "maven-publish"
     apply plugin: "signing"
 
-    def safeProp = { name, defaultVal = "" ->
-        System.getenv(name) ?: (project.hasProperty(name) ? project.property(name) : defaultVal)
-    }
+    def jVersion = (findProperty("java_version") ?: "17").toString().trim() as Integer
+    def springVer = (findProperty("spring_boot_version") ?: findProperty("springBoot_version") ?: "3.3.5").toString().trim()
+    def jjwtVer = (findProperty("jjwt_version") ?: "0.11.5").toString().trim()
+    def junitVersion = (findProperty("junit_version") ?: "5.10.0").toString().trim()
+    def encoding = (findProperty("encoding") ?: findProperty('encoding_method') ?: 'UTF-8').toString().trim()
 
     def normalizeSigningKey = { raw ->
         def text = (raw ?: "").toString().trim()
-        if (!text) {
-            return ""
-        }
-
+        if (!text) return ""
         text = text.replace("\\r\\n", "\n").replace("\\n", "\n")
-
-        if (text.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----")) {
-            return text
-        }
-
+        if (text.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----")) return text
         try {
-            return new String(text.decodeBase64(), "UTF-8").trim()
+            return new String(text.decodeBase64(), encoding).trim()
         } catch (Exception ignored) {
             return text
         }
     }
 
+    ext {
+        springBootVersion = springVer
+        jjwtVersion = jjwtVer
+        junitVer = junitVersion
+        encodingMethod = encoding
+    }
+
+    def pomMetadataByProject = [
+            "spi": [
+                    name       : "IP Guard SPI",
+                    description: "RuleSource SPI contracts for the IP guard access-control stack."
+            ],
+            "core": [
+                    name       : "IP Guard Core",
+                    description: "Framework-agnostic IP parsing, rule matching, and decision engine for the IP guard stack."
+            ],
+            "source-env": [
+                    name       : "IP Guard Env Source",
+                    description: "Environment-variable based RuleSource implementation and auto-configuration for ip-guard."
+            ],
+            "source-file": [
+                    name       : "IP Guard File Source",
+                    description: "File-based RuleSource implementation and auto-configuration for ip-guard."
+            ],
+            "config": [
+                    name       : "IP Guard Spring Boot Starter",
+                    description: "Spring Boot starter that wires IP Guard Engine, filter, and generic configuration."
+            ]
+    ]
+
+    def fallbackProjectName = project.name
+            .replace('-', ' ')
+            .split(' ')
+            .collect { part -> part.capitalize() }
+            .join(' ')
+    def pomMetadata = pomMetadataByProject.get(project.name, [
+            name       : fallbackProjectName,
+            description: "IP guard module for the ip-guard multi-module repository."
+    ])
+
     java {
-        toolchain {languageVersion = JavaLanguageVersion.of(java_version)}
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(jVersion)
+        }
         withSourcesJar()
         withJavadocJar()
     }
 
     tasks.withType(JavaCompile).configureEach {
-        options.release = 17
-        options.encoding = "UTF-8"
+        options.release.set(jVersion)
+        options.encoding = encoding
     }
-
     tasks.withType(Javadoc).configureEach {
-        // Keep Javadoc jar generation from failing publication on doclint issues.
         options.addStringOption("Xdoclint:none", "-quiet")
     }
 
-    def moduleArtifactId = (project.name == "config")
-        ? "ip-guard-spring-boot-starter"
-        : "ip-guard-${project.name}"
+    dependencies {
+        testImplementation platform("org.junit:junit-bom:${junitVersion}")
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testImplementation 'org.assertj:assertj-core:3.24.2'
+    }
 
-    def moduleDescriptionMap = [
-        "spi"       : "SPI contracts for ip-guard rule sources",
-        "core"      : "Framework-agnostic IP rule parsing and decision engine",
-        "source-env": "RuleSource implementation backed by environment variables",
-        "source-file": "RuleSource implementation backed by local files",
-        "config"    : "Spring Boot starter for ip-guard integration"
-    ]
+    test {
+        useJUnitPlatform()
+    }
 
     publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                artifactId = moduleArtifactId
+        repositories {
+            maven {
+                def isSnapshot = project.version.toString().endsWith("SNAPSHOT")
+                def releaseRepo = (System.getenv("MAVEN_CENTRAL_RELEASE_URL")
+                        ?: project.findProperty("mavenCentralReleaseUrl")
+                        ?: "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/") as String
+                def snapshotRepo = (System.getenv("MAVEN_CENTRAL_SNAPSHOT_URL")
+                        ?: project.findProperty("mavenCentralSnapshotUrl")
+                        ?: "https://central.sonatype.com/repository/maven-snapshots/") as String
 
-                pom {
-                    name = moduleArtifactId
-                    description = moduleDescriptionMap.get(project.name, "ip-guard module")
-                    url = "https://github.com/jho951/ip-guard"
+                name = "CentralPortal"
+                url = uri(isSnapshot ? snapshotRepo : releaseRepo)
+                credentials {
+                    username = (System.getenv("MAVEN_CENTRAL_USERNAME")
+                            ?: project.findProperty("mavenCentralUsername")
+                            ?: project.findProperty("ossrhUsername")
+                            ?: "") as String
 
-                    licenses {
-                        license {
-                            name = "The Apache License, Version 2.0"
-                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = "jho951"
-                            name = "jho951"
-                        }
-                    }
-
-                    scm {
-                        connection = "scm:git:https://github.com/jho951/ip-guard.git"
-                        developerConnection = "scm:git:ssh://git@github.com:jho951/ip-guard.git"
-                        url = "https://github.com/jho951/ip-guard"
-                    }
+                    password = (System.getenv("MAVEN_CENTRAL_PASSWORD")
+                            ?: project.findProperty("mavenCentralPassword")
+                            ?: project.findProperty("ossrhPassword")
+                            ?: "") as String
                 }
             }
         }
 
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/jho951/ip-guard")
-                credentials {
-                    username = findProperty("githubUsername") ?: System.getenv("GITHUB_ACTOR")
-                    password = findProperty("githubToken") ?: System.getenv("GITHUB_TOKEN")
-                }
-            }
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
 
-            maven {
-                name = "SonatypeCentral"
-                def releaseRepo = safeProp("MAVEN_CENTRAL_RELEASE_URL",
-                    findProperty("mavenCentralReleaseUrl")
-                        ?: "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-                def snapshotRepo = safeProp("MAVEN_CENTRAL_SNAPSHOT_URL",
-                    findProperty("mavenCentralSnapshotUrl")
-                        ?: "https://central.sonatype.com/repository/maven-snapshots/")
-                url = uri(version.toString().endsWith("SNAPSHOT") ? snapshotRepo : releaseRepo)
-                credentials {
-                    username = findProperty("mavenCentralUsername")
-                        ?: System.getenv("MAVEN_CENTRAL_USERNAME")
-                        ?: findProperty("centralUsername")
-                        ?: System.getenv("CENTRAL_USERNAME")
-                        ?: findProperty("ossrhUsername")
-                        ?: System.getenv("OSSRH_USERNAME")
-                    password = findProperty("mavenCentralPassword")
-                        ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
-                        ?: findProperty("centralPassword")
-                        ?: System.getenv("CENTRAL_PASSWORD")
-                        ?: findProperty("ossrhPassword")
-                        ?: System.getenv("OSSRH_PASSWORD")
+                groupId = project.group.toString()
+                artifactId = project.name
+                version = project.version.toString()
+
+                pom {
+                    name = pomMetadata.name
+                    description = pomMetadata.description
+                    url = "https://github.com/jho951/ip-guard"
+                    inceptionYear = "2025"
+                    organization {
+                        name = "jho951"
+                        url = "https://github.com/jho951"
+                    }
+                    issueManagement {
+                        system = "GitHub Issues"
+                        url = "https://github.com/jho951/ip-guard/issues"
+                    }
+                    licenses {
+                        license {
+                            name = "MIT License"
+                            url = "https://opensource.org/licenses/MIT"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "jho951"
+                            name = "jho951"
+                            url = "https://github.com/jho951"
+                        }
+                    }
+                    scm {
+                        connection = "scm:git:https://github.com/jho951/ip-guard.git"
+                        developerConnection = "scm:git:ssh://git@github.com/jho951/ip-guard.git"
+                        url = "https://github.com/jho951/ip-guard"
+                    }
                 }
             }
         }
     }
 
     signing {
-        def signingKey = normalizeSigningKey(findProperty("mavenCentralSigningKey")
-            ?: System.getenv("MAVEN_CENTRAL_GPG_PRIVATE_KEY")
-            ?: findProperty("signingKey")
-            ?: System.getenv("SIGNING_KEY"))
-        def signingPassword = findProperty("mavenCentralSigningPassword")
-            ?: System.getenv("MAVEN_CENTRAL_GPG_PASSPHRASE")
-            ?: findProperty("signingPassword")
-            ?: System.getenv("SIGNING_PASSWORD")
-        if (signingKey) {
-            useInMemoryPgpKeys(signingKey, signingPassword)
-            sign publishing.publications.mavenJava
-        }
-    }
+        def key = normalizeSigningKey(System.getenv("MAVEN_CENTRAL_GPG_PRIVATE_KEY")
+                ?: project.findProperty("mavenCentralSigningKey")
+                ?: "")
+        def pass = (System.getenv("MAVEN_CENTRAL_GPG_PASSPHRASE")
+                ?: project.findProperty("mavenCentralSigningPassword")
+                ?: "").toString()
 
+        if (key) useInMemoryPgpKeys(key, pass)
+
+        sign publishing.publications.mavenJava
+    }
     tasks.withType(PublishToMavenRepository).configureEach {
         doFirst {
-            if (repository.name != "SonatypeCentral") {
-                return
-            }
+            def u = (System.getenv("MAVEN_CENTRAL_USERNAME")
+                    ?: project.findProperty("mavenCentralUsername")
+                    ?: project.findProperty("ossrhUsername")
+                    ?: "").toString()
 
-            def username = (findProperty("mavenCentralUsername")
-                ?: System.getenv("MAVEN_CENTRAL_USERNAME")
-                ?: findProperty("centralUsername")
-                ?: System.getenv("CENTRAL_USERNAME")
-                ?: findProperty("ossrhUsername")
-                ?: System.getenv("OSSRH_USERNAME")
-                ?: "").toString()
-            def password = (findProperty("mavenCentralPassword")
-                ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
-                ?: findProperty("centralPassword")
-                ?: System.getenv("CENTRAL_PASSWORD")
-                ?: findProperty("ossrhPassword")
-                ?: System.getenv("OSSRH_PASSWORD")
-                ?: "").toString()
-            def signingKey = normalizeSigningKey(findProperty("mavenCentralSigningKey")
-                ?: System.getenv("MAVEN_CENTRAL_GPG_PRIVATE_KEY")
-                ?: findProperty("signingKey")
-                ?: System.getenv("SIGNING_KEY"))
+            def p = (System.getenv("MAVEN_CENTRAL_PASSWORD")
+                    ?: project.findProperty("mavenCentralPassword")
+                    ?: project.findProperty("ossrhPassword")
+                    ?: "").toString()
 
-            if (!username || !password) {
-                throw new GradleException("Missing Maven Central credentials. Set MAVEN_CENTRAL_USERNAME/MAVEN_CENTRAL_PASSWORD or compatible aliases.")
-            }
+            def key = (System.getenv("MAVEN_CENTRAL_GPG_PRIVATE_KEY")
+                    ?: project.findProperty("mavenCentralSigningKey")
+                    ?: "")
 
-            if (!signingKey) {
-                throw new GradleException("Missing signing key. Set MAVEN_CENTRAL_GPG_PRIVATE_KEY or a compatible signing alias.")
-            }
+            key = normalizeSigningKey(key)
+
+            if (!u || !p) throw new GradleException("Missing Central Portal credentials. Set MAVEN_CENTRAL_USERNAME/MAVEN_CENTRAL_PASSWORD.")
+            if (!key) throw new GradleException("Missing signing key. Set MAVEN_CENTRAL_GPG_PRIVATE_KEY (or mavenCentralSigningKey).")
         }
     }
-}
-
-tasks.register("publishToGitHubPackages") {
-    group = "publishing"
-    description = "Publish all modules to GitHub Packages."
-    dependsOn(subprojects.collect { "${it.path}:publishAllPublicationsToGitHubPackagesRepository" })
-}
-
-tasks.register("publishToSonatypeCentral") {
-    group = "publishing"
-    description = "Publish all modules to Sonatype Central."
-    dependsOn(subprojects.collect { "${it.path}:publishAllPublicationsToSonatypeCentralRepository" })
 }

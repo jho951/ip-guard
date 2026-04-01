@@ -1,7 +1,5 @@
 package com.ipguard.core.rules;
 
-import com.ipguard.core.exception.ErrorCode;
-import com.ipguard.core.exception.IpGuardException;
 import com.ipguard.core.ip.IpAddress;
 import com.ipguard.core.ip.IpParser;
 import com.ipguard.core.ip.IpRange;
@@ -62,10 +60,7 @@ public final class RuleParser {
 			IpAddress end = IpParser.parse(s.substring(dash + 1).trim());
 
 			if (start.family() != end.family()) {
-				throw new IpGuardException(
-					ErrorCode.RULE_FAMILY_MISMATCH,
-					"range family mismatch: " + s
-				);
+				throw new IllegalArgumentException("range family mismatch: " + s);
 			}
 
 			return new RangeIpRule(
@@ -86,7 +81,7 @@ public final class RuleParser {
 
 	private static String ipv4WildcardToCidr(String s) {
 		String[] parts = s.split("\\.");
-		if (parts.length != 4) throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "invalid wildcard: " + s);
+		if (parts.length != 4) throw new IllegalArgumentException("invalid wildcard: " + s);
 
 		int fixed = 0;
 		for (String p : parts) {
@@ -94,8 +89,8 @@ public final class RuleParser {
 
 			int v;
 			try { v = Integer.parseInt(p); }
-			catch (Exception e) { throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "invalid wildcard: " + s); }
-			if (v < 0 || v > 255) throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "invalid wildcard: " + s);
+			catch (Exception e) { throw new IllegalArgumentException("invalid wildcard: " + s, e); }
+			if (v < 0 || v > 255) throw new IllegalArgumentException("invalid wildcard: " + s);
 
 			fixed++;
 		}
@@ -103,11 +98,11 @@ public final class RuleParser {
 		// ✅ "*"는 연속이어야 함 (10.*.1.* 같은 형태 금지)
 		for (int i = fixed; i < 4; i++) {
 			if (!"*".equals(parts[i])) {
-				throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "wildcard must be contiguous: " + s);
+				throw new IllegalArgumentException("wildcard must be contiguous: " + s);
 			}
 		}
 
-		if (fixed == 0) throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "too broad wildcard: " + s);
+		if (fixed == 0) throw new IllegalArgumentException("too broad wildcard: " + s);
 
 		int prefix = fixed * 8;
 

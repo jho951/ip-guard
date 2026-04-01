@@ -1,22 +1,34 @@
 package com.ipguard.config;
 
 import com.ipguard.core.engine.IpGuardEngine;
-import com.ipguard.env.EnvRuleSource;
 import com.ipguard.spi.RuleSource;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
+@AutoConfigureAfter(name = {
+	"com.ipguard.env.EnvRuleSourceAutoConfiguration",
+	"com.ipguard.file.FileRuleSourceAutoConfiguration"
+})
 @EnableConfigurationProperties(IpGuardProperties.class)
+@ConditionalOnBean(RuleSource.class)
 public class IpGuardAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public RuleSource ruleSource(IpGuardProperties props) {
-		return new EnvRuleSource(props.getEnvKey());
+	public ClientIpResolver clientIpResolver(IpGuardProperties props) {
+		return new DefaultClientIpResolver(props.getClientIpStrategy(), props.getTrustedProxies());
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public BlockResponseWriter blockResponseWriter() {
+		return new JsonBlockResponseWriter();
 	}
 
 	@Bean
@@ -27,7 +39,7 @@ public class IpGuardAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public IpGuardFilter ipGuardFilter(IpGuardEngine engine) {
-		return new IpGuardFilter(engine);
+	public IpGuardFilter ipGuardFilter(IpGuardEngine engine, ClientIpResolver clientIpResolver, BlockResponseWriter blockResponseWriter) {
+		return new IpGuardFilter(engine, clientIpResolver, blockResponseWriter);
 	}
 }

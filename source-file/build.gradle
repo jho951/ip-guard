@@ -1,10 +1,8 @@
 dependencies {
     api project(":spi")
-    testImplementation platform("org.junit:junit-bom:${junit}")
+    implementation "org.springframework.boot:spring-boot-autoconfigure:3.3.5"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:3.3.5"
+    testImplementation platform("org.junit:junit-bom:${junitVer}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-test {
-    useJUnitPlatform()
 }

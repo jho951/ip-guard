@@ -13,13 +13,22 @@ ehthumbs.db
 .gradle-local/
 build/
 **/build/
+**/build/reports/
+**/build/test-results/
+**/build/tmp/
+**/build/classes/
+**/build/generated/
 *.kotlin_module
+*.lck
 !gradle/wrapper/gradle-wrapper.jar
 
 # secret
 .env*
 .envrc
 docker/.generated
+*.key
+*.pem
+*.p12
 
 # IntelliJ
 .idea/
@@ -30,6 +39,12 @@ out/
 
 # Data
 data/
+
+# Logs / runtime
+*.pid
+*.seed
+*.out
+*.err
 
 # Docs or helpers
 HELP.md

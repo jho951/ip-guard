@@ -1,8 +1,5 @@
 package com.ipguard.core.ip;
 
-import com.ipguard.core.exception.ErrorCode;
-import com.ipguard.core.exception.IpGuardException;
-
 import java.math.BigInteger;
 import java.net.InetAddress;
 
@@ -11,9 +8,9 @@ public final class IpParser {
 	private IpParser() {}
 
 	public static IpAddress parse(String raw) {
-		if (raw == null) throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "ip is null");
+		if (raw == null) throw new IllegalArgumentException("ip is null");
 		String s = normalize(raw);
-		if (s.isEmpty()) throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "ip is blank");
+		if (s.isEmpty()) throw new IllegalArgumentException("ip is blank");
 
 		try {
 			InetAddress addr = InetAddress.getByName(s);
@@ -27,9 +24,9 @@ public final class IpParser {
 				BigInteger v = new BigInteger(1, bytes);
 				return new Ipv6Address(v, addr.getHostAddress());
 			}
-			throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "unsupported ip length: " + bytes.length);
+			throw new IllegalArgumentException("unsupported ip length: " + bytes.length);
 		} catch (Exception e) {
-			throw new IpGuardException(ErrorCode.INVALID_IP_ADDRESS, "invalid ip: " + raw);
+			throw new IllegalArgumentException("invalid ip: " + raw, e);
 		}
 	}
 
