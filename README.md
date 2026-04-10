@@ -4,7 +4,7 @@
 핵심 개념, 입력/출력 모델, 인터페이스 계약, 판정 규칙을 한 묶음으로 제공합니다.
 
 [![Build](https://github.com/jho951/ip-guard/actions/workflows/build.yml/badge.svg)](https://github.com/jho951/ip-guard/actions/workflows/build.yml)
-[![Publish](https://github.com/jho951/ip-guard/actions/workflows/publish.yml/badge.svg?branch=v3.0.0)](https://github.com/jho951/ip-guard/actions/workflows/publish.yml)
+[![Publish](https://github.com/jho951/ip-guard/actions/workflows/publish.yml/badge.svg)](https://github.com/jho951/ip-guard/actions/workflows/publish.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.jho951/ip-guard-core?label=maven%20central)](https://central.sonatype.com/search?q=io.github.jho951%20ip-guard)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](./LICENSE)
 [![Tag](https://img.shields.io/github/v/tag/jho951/ip-guard)](https://github.com/jho951/ip-guard/tags)
