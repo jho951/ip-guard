@@ -2,8 +2,6 @@ name: Chore
 description: 빌드/배포/도구/의존성/문서 등 설정 변경 (이유/영향/롤백 포함)
 title: "[CHORE] "
 labels: ["CHORE"]
-assignees:
-  - jho951
 
 body:
   - type: markdown

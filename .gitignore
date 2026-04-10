@@ -9,20 +9,14 @@ ehthumbs.db
 *.log
 
 # Gradle
-.gradle/
-.gradle-local/
-build/
+/.gradle/
+/.gradle-local/
+/build/
 **/build/
-**/build/reports/
-**/build/test-results/
-**/build/tmp/
-**/build/classes/
-**/build/generated/
 *.kotlin_module
 *.lck
-!gradle/wrapper/gradle-wrapper.jar
 
-# secret
+# Secrets
 .env*
 .envrc
 docker/.generated
@@ -31,11 +25,17 @@ docker/.generated
 *.p12
 
 # IntelliJ
-.idea/
+/.idea/
 *.iws
 *.iml
 *.ipr
 out/
+
+# Eclipse / editor leftovers
+*.tmp
+*.orig
+.project
+.settings/
 
 # Data
 data/
@@ -45,7 +45,3 @@ data/
 *.seed
 *.out
 *.err
-
-# Docs or helpers
-HELP.md
-.gitattributes

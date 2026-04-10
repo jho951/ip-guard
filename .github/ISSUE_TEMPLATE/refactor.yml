@@ -2,8 +2,6 @@ name: Refactor
 description: 기능 변경 없이 코드 품질 개선 (범위/목적/검증/리스크)
 title: "[REFACTOR] "
 labels: ["REFACTOR"]
-assignees:
-  - jho951
 
 body:
   - type: markdown
@@ -20,8 +18,8 @@ body:
       description: "어느 모듈/패키지/클래스를 리팩토링하나요?"
       placeholder: |
         예)
-        - com.admin.service 내 UserService, AdminUserService 통합
-        - 공통 응답 포맷을 ApiResponse 클래스로 통일
+        - ip-guard-core 내 RuleParser 정리
+        - 공통 판정 결과 모델을 Decision으로 통일
     validations:
       required: true
 
@@ -31,7 +29,7 @@ body:
       label: "🎯 리팩토링 목적"
       description: "왜 리팩토링이 필요한지 적어주세요."
       placeholder: |
-        예) 중복 코드 제거 / 테스트 가능성 향상 / 가독성 개선 / 향후 기능 추가를 위한 구조 정리
+        예) 중복 코드 제거 / 테스트 가능성 향상 / 가독성 개선 / 향후 확장 대비
     validations:
       required: true
 
@@ -51,8 +49,8 @@ body:
       label: "🧩 구체적인 변경 계획"
       placeholder: |
         예)
-        - UserService에서 인증/인가 로직 분리 → AuthService 생성
-        - 컨트롤러에서 공통 예외 처리 제거 → @ControllerAdvice로 이동
+        - parser 로직 분리 → 규칙 타입별 파서 정리
+        - 중복 판정 분기 제거 → `Decision` 생성 로직으로 이동
     validations:
       required: false
 
