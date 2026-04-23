@@ -36,7 +36,6 @@ public final class RuleParser {
 
 	private static IpRule parseOne(String s) {
 
-		// ✅ IPv4 wildcard 지원: 192.168.*.* -> 192.168.0.0/16
 		if (looksLikeIpv4Wildcard(s)) {
 			String cidr = ipv4WildcardToCidr(s);
 			int slash = cidr.indexOf('/');
@@ -95,7 +94,6 @@ public final class RuleParser {
 			fixed++;
 		}
 
-		// ✅ "*"는 연속이어야 함 (10.*.1.* 같은 형태 금지)
 		for (int i = fixed; i < 4; i++) {
 			if (!"*".equals(parts[i])) {
 				throw new IllegalArgumentException("wildcard must be contiguous: " + s);

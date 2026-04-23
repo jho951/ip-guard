@@ -3,62 +3,35 @@ package com.ipguard.core.ip;
 import java.math.BigInteger;
 import java.net.InetAddress;
 
+/** IP 주소 문자열을 정규화하고, v4 | v6 객체로 변환 */
 public final class IpParser {
 
 	private IpParser() {}
 
-	public static IpAddress parse(String raw) {
-		if (raw == null) throw new IllegalArgumentException("ip is null");
-		String s = normalize(raw);
-		if (s.isEmpty()) throw new IllegalArgumentException("ip is blank");
-
-		try {
-			InetAddress addr = InetAddress.getByName(s);
-			byte[] bytes = addr.getAddress(); // 4 or 16
-
-			if (bytes.length == 4) {
-				BigInteger v = new BigInteger(1, bytes);
-				return new Ipv4Address(v);
-			}
-			if (bytes.length == 16) {
-				BigInteger v = new BigInteger(1, bytes);
-				return new Ipv6Address(v, addr.getHostAddress());
-			}
-			throw new IllegalArgumentException("unsupported ip length: " + bytes.length);
-		} catch (Exception e) {
-			throw new IllegalArgumentException("invalid ip: " + raw, e);
-		}
-	}
-
+	/**
+	 * 문자열 앞뒤의 공백이나 따옴표(")를 제거
+	 * IPv6의 대괄호([])나 IPv4의 포트 번호(:8080)를 제거
+	 * IPv6 주소 뒤에 붙는 네트워크 인터페이스 정보(%en0)를 삭제
+	 */
 	private static String normalize(String raw) {
 		String s = raw.trim();
 		if (s.isEmpty()) return s;
-
 		if (s.length() >= 2 && s.startsWith("\"") && s.endsWith("\"")) {
 			s = s.substring(1, s.length() - 1).trim();
 		}
-
-		// [IPv6]:port 형태에서 IPv6만 추출
 		if (s.startsWith("[")) {
 			int end = s.indexOf(']');
-			if (end > 1) {
-				s = s.substring(1, end).trim();
-			}
+			if (end > 1) s = s.substring(1, end).trim();
 		}
-
-		// IPv4:port 형태 지원
 		if (isIpv4WithPort(s)) {
 			int idx = s.lastIndexOf(':');
 			s = s.substring(0, idx).trim();
 		}
-
-		// IPv6 zone 제거: fe80::1%en0
 		int zone = s.indexOf('%');
 		if (zone > 0) s = s.substring(0, zone);
-
 		return s;
 	}
-
+	/** IPv4 주소 뒤에 포트 번호가 붙은 형태(예: 192.168.0.1:8080)"인지 확인 */
 	private static boolean isIpv4WithPort(String s) {
 		if (s == null) return false;
 		int idx = s.lastIndexOf(':');
@@ -74,4 +47,28 @@ public final class IpParser {
 		}
 		return true;
 	}
+	/** normalize한 문자열로 실제 객체 생성 */
+	public static IpAddress parse(String raw) {
+		if (raw == null) throw new IllegalArgumentException("ip is null");
+		String s = normalize(raw);
+		if (s.isEmpty()) throw new IllegalArgumentException("ip is blank");
+
+		try {
+			InetAddress addr = InetAddress.getByName(s);
+			byte[] bytes = addr.getAddress();
+
+			if (bytes.length == 4) {
+				BigInteger v = new BigInteger(1, bytes);
+				return new Ipv4Address(v);
+			}
+			if (bytes.length == 16) {
+				BigInteger v = new BigInteger(1, bytes);
+				return new Ipv6Address(v, addr.getHostAddress());
+			}
+			throw new IllegalArgumentException("unsupported ip length: " + bytes.length);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("invalid ip: " + raw, e);
+		}
+	}
+
 }
